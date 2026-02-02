@@ -122,7 +122,17 @@
         <option value="sharingan">👁️ Sharingan</option>
         <option value="byakugan">👀 Byakugan</option>
         <option value="waterdragon">🌊 Water Dragon</option>
-        <option value="amaterasu">🔥 Amaterasu</option>
+        <option value="substitution">🪵 Substitution</option>
+        <option value="transformation">✨ Transformation</option>
+        <option value="summoning">📜 Summoning Jutsu</option>
+        <option value="earthwall">🪨 Earth Wall</option>
+        <option value="windscythe">💨 Wind Scythe</option>
+        <option value="lightningblade">⚡ Lightning Blade</option>
+        <option value="icemirrors">❄️ Ice Mirrors</option>
+        <option value="sandcoffin">🏜️ Sand Coffin</option>
+        <option value="eightgates">💪 Eight Gates</option>
+        <option value="particlestyle">✨ Particle Style</option>
+        <option value="woodstyle">🌳 Wood Style</option>
       </select>
     </div>
     
@@ -150,55 +160,115 @@ const progressText = document.getElementById('progress-text');
 const sealsContainer = document.getElementById('seals-container');
 const jutsuNameEl = document.getElementById('jutsu-name');
 
-// Jutsu configurations
+// Jutsu configurations - ALL WITH EASIER SEALS
 const jutsuList = {
   chidori: {
     name: "Chidori",
-    seals: ['OX', 'RABBIT', 'MONKEY'],
+    seals: ['FIST', 'PALM', 'PEACE'],
     color: '#00d4ff',
     message: '⚡ CHIDORI ACTIVATED! ⚡'
   },
   rasengan: {
     name: "Rasengan",
-    seals: ['BIRD', 'SNAKE', 'TIGER', 'DRAGON'],
+    seals: ['PALM', 'FIST', 'PALM'],
     color: '#4169E1',
     message: '🌀 RASENGAN FORMED! 🌀'
   },
   fireball: {
     name: "Fire Style: Fireball Jutsu",
-    seals: ['SNAKE', 'RAM', 'MONKEY', 'BOAR', 'HORSE', 'TIGER'],
+    seals: ['PALM', 'FIST', 'PEACE', 'PALM'],
     color: '#FF4500',
     message: '🔥 FIREBALL JUTSU! 🔥'
   },
   shadowclone: {
     name: "Shadow Clone Jutsu",
-    seals: ['RAM', 'SNAKE', 'TIGER'],
+    seals: ['PEACE', 'FIST', 'PEACE'],
     color: '#9370DB',
     message: '👥 SHADOW CLONE JUTSU! 👥'
   },
   sharingan: {
     name: "Sharingan Activation",
-    seals: ['BIRD', 'DRAGON', 'OX'],
+    seals: ['POINT', 'PALM', 'FIST'],
     color: '#DC143C',
     message: '👁️ SHARINGAN ACTIVATED! 👁️'
   },
   byakugan: {
     name: "Byakugan Activation",
-    seals: ['TIGER', 'BOAR', 'BIRD'],
+    seals: ['PEACE', 'PALM', 'POINT'],
     color: '#E6E6FA',
     message: '👀 BYAKUGAN! 👀'
   },
   waterdragon: {
     name: "Water Style: Water Dragon",
-    seals: ['OX', 'MONKEY', 'RABBIT', 'RAT', 'BOAR', 'BIRD', 'DRAGON', 'HORSE', 'TIGER'],
+    seals: ['FIST', 'PALM', 'PEACE', 'PALM', 'FIST'],
     color: '#1E90FF',
     message: '🌊 WATER DRAGON JUTSU! 🌊'
   },
-  amaterasu: {
-    name: "Amaterasu",
-    seals: ['TIGER', 'BIRD', 'DRAGON', 'OX'],
-    color: '#000000',
-    message: '🔥 AMATERASU! 🔥'
+  substitution: {
+    name: "Substitution Jutsu",
+    seals: ['PALM', 'PEACE'],
+    color: '#8B4513',
+    message: '🪵 SUBSTITUTION! 🪵'
+  },
+  transformation: {
+    name: "Transformation Jutsu",
+    seals: ['POINT', 'PALM', 'PEACE'],
+    color: '#FFD700',
+    message: '✨ TRANSFORMATION! ✨'
+  },
+  summoning: {
+    name: "Summoning Jutsu",
+    seals: ['FIST', 'PEACE', 'PALM', 'FIST'],
+    color: '#8B0000',
+    message: '📜 SUMMONING JUTSU! 📜'
+  },
+  earthwall: {
+    name: "Earth Style: Earth Wall",
+    seals: ['FIST', 'PALM', 'FIST'],
+    color: '#8B4513',
+    message: '🪨 EARTH WALL! 🪨'
+  },
+  windscythe: {
+    name: "Wind Style: Wind Scythe",
+    seals: ['PALM', 'PEACE', 'PALM'],
+    color: '#87CEEB',
+    message: '💨 WIND SCYTHE! 💨'
+  },
+  lightningblade: {
+    name: "Lightning Blade",
+    seals: ['PEACE', 'FIST', 'POINT'],
+    color: '#FFFF00',
+    message: '⚡ LIGHTNING BLADE! ⚡'
+  },
+  icemirrors: {
+    name: "Ice Style: Crystal Ice Mirrors",
+    seals: ['PALM', 'POINT', 'PEACE', 'PALM'],
+    color: '#B0E0E6',
+    message: '❄️ ICE MIRRORS! ❄️'
+  },
+  sandcoffin: {
+    name: "Sand Coffin",
+    seals: ['FIST', 'FIST', 'PALM'],
+    color: '#DEB887',
+    message: '🏜️ SAND COFFIN! 🏜️'
+  },
+  eightgates: {
+    name: "Eight Gates Release",
+    seals: ['FIST', 'PEACE', 'FIST', 'PEACE'],
+    color: '#FF0000',
+    message: '💪 EIGHT GATES OPEN! 💪'
+  },
+  particlestyle: {
+    name: "Particle Style",
+    seals: ['PALM', 'PEACE', 'PALM', 'FIST'],
+    color: '#FFFFFF',
+    message: '✨ PARTICLE STYLE! ✨'
+  },
+  woodstyle: {
+    name: "Wood Style: Deep Forest",
+    seals: ['FIST', 'PALM', 'PEACE', 'PALM'],
+    color: '#228B22',
+    message: '🌳 WOOD STYLE! 🌳'
   }
 };
 
@@ -210,116 +280,42 @@ let lastGesture = null;
 let gestureHoldTime = 0;
 const HOLD_DURATION = 30;
 
-// Seal SVG icons
+// Seal SVG icons - SIMPLIFIED TO 4 EASY GESTURES
 const sealIcons = {
-  BIRD: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="45" rx="16" ry="10" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <path d="M 18 40 Q 10 38 6 32 Q 4 28 6 24 Q 10 22 14 26 L 18 35 Z" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <rect x="26" y="10" width="8" height="30" rx="4" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <circle cx="30" cy="9" r="5" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <ellipse cx="38" cy="36" rx="4" ry="7" fill="#D2B48C" stroke="#CD853F" stroke-width="1.5"/>
-    <ellipse cx="44" cy="39" rx="3.5" ry="6" fill="#D2B48C" stroke="#CD853F" stroke-width="1.5"/>
-    <ellipse cx="49" cy="41" rx="3" ry="5" fill="#D2B48C" stroke="#CD853F" stroke-width="1.5"/>
+  FIST: `<svg width="60" height="60" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="35" rx="18" ry="20" fill="#CD853F" stroke="#8B4513" stroke-width="3"/>
+    <ellipse cx="20" cy="28" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
+    <ellipse cx="30" cy="26" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
+    <ellipse cx="40" cy="28" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
+    <text x="30" y="50" text-anchor="middle" fill="#FFF" font-size="12" font-weight="bold">✊</text>
   </svg>`,
   
-  SNAKE: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="48" rx="18" ry="9" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <path d="M 14 42 L 8 38 Q 4 34 5 28 Q 6 24 10 23 Q 13 23 14 28 L 15 38 Z" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <rect x="20" y="8" width="7" height="36" rx="3.5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <circle cx="23.5" cy="7" r="4" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <rect x="29" y="4" width="7" height="40" rx="3.5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <circle cx="32.5" cy="3" r="4" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <rect x="38" y="7" width="7" height="37" rx="3.5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <circle cx="41.5" cy="6" r="4" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <rect x="47" y="12" width="6" height="32" rx="3" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <circle cx="50" cy="11" r="3.5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
+  PALM: `<svg width="60" height="60" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="48" rx="18" ry="9" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
+    <rect x="18" y="8" width="6" height="36" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
+    <rect x="26" y="5" width="6" height="39" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
+    <rect x="34" y="6" width="6" height="38" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
+    <rect x="42" y="10" width="6" height="34" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
+    <text x="30" y="58" text-anchor="middle" fill="#8B4513" font-size="12" font-weight="bold">🖐️</text>
   </svg>`,
   
-  TIGER: `<svg width="60" height="60" viewBox="0 0 60 60">
+  PEACE: `<svg width="60" height="60" viewBox="0 0 60 60">
     <ellipse cx="30" cy="46" rx="16" ry="10" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
     <rect x="22" y="10" width="7" height="32" rx="3.5" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
-    <circle cx="25.5" cy="9" r="4" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
     <rect x="31" y="8" width="7" height="34" rx="3.5" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
-    <circle cx="34.5" cy="7" r="4" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
     <ellipse cx="42" cy="38" rx="4" ry="8" fill="#DB7093" stroke="#C71585" stroke-width="1.5"/>
-    <ellipse cx="48" cy="40" rx="3.5" ry="7" fill="#DB7093" stroke="#C71585" stroke-width="1.5"/>
     <ellipse cx="18" cy="42" rx="5" ry="6" fill="#DB7093" stroke="#C71585" stroke-width="1.5"/>
+    <text x="30" y="58" text-anchor="middle" fill="#C71585" font-size="12" font-weight="bold">✌️</text>
   </svg>`,
   
-  OX: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="16" ry="10" fill="#D2691E" stroke="#8B4513" stroke-width="2"/>
-    <rect x="18" y="15" width="8" height="28" rx="4" fill="#D2691E" stroke="#8B4513" stroke-width="2"/>
-    <circle cx="22" cy="13" r="5" fill="#D2691E" stroke="#8B4513" stroke-width="2"/>
-    <rect x="34" y="15" width="8" height="28" rx="4" fill="#D2691E" stroke="#8B4513" stroke-width="2"/>
-    <circle cx="38" cy="13" r="5" fill="#D2691E" stroke="#8B4513" stroke-width="2"/>
-    <ellipse cx="30" cy="36" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="1.5"/>
-  </svg>`,
-  
-  RABBIT: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="48" rx="16" ry="9" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
-    <rect x="24" y="12" width="6" height="32" rx="3" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
-    <circle cx="27" cy="10" r="4" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
-    <rect x="32" y="8" width="6" height="36" rx="3" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
-    <circle cx="35" cy="6" r="4" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
-    <ellipse cx="20" cy="40" rx="4" ry="6" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1.5"/>
-    <ellipse cx="44" cy="42" rx="4" ry="6" fill="#FFE4E1" stroke="#FFB6C1" stroke-width="1.5"/>
-  </svg>`,
-  
-  MONKEY: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="45" rx="17" ry="11" fill="#DEB887" stroke="#8B7355" stroke-width="2"/>
-    <circle cx="18" cy="30" r="8" fill="#DEB887" stroke="#8B7355" stroke-width="2"/>
-    <circle cx="42" cy="30" r="8" fill="#DEB887" stroke="#8B7355" stroke-width="2"/>
-    <rect x="26" y="18" width="8" height="20" rx="4" fill="#DEB887" stroke="#8B7355" stroke-width="2"/>
-    <ellipse cx="30" cy="35" rx="6" ry="4" fill="#CD853F" stroke="#8B7355" stroke-width="1.5"/>
-  </svg>`,
-  
-  RAM: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="16" ry="10" fill="#F0E68C" stroke="#DAA520" stroke-width="2"/>
-    <path d="M 12 35 Q 8 30 10 24 Q 14 20 18 24 Q 20 28 18 34 Z" fill="#F0E68C" stroke="#DAA520" stroke-width="2"/>
-    <path d="M 48 35 Q 52 30 50 24 Q 46 20 42 24 Q 40 28 42 34 Z" fill="#F0E68C" stroke="#DAA520" stroke-width="2"/>
-    <rect x="24" y="20" width="12" height="22" rx="6" fill="#F0E68C" stroke="#DAA520" stroke-width="2"/>
-    <circle cx="30" cy="18" r="6" fill="#F0E68C" stroke="#DAA520" stroke-width="2"/>
-  </svg>`,
-  
-  BOAR: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="44" rx="18" ry="12" fill="#CD5C5C" stroke="#8B3A3A" stroke-width="2"/>
-    <ellipse cx="20" cy="35" rx="6" ry="9" fill="#CD5C5C" stroke="#8B3A3A" stroke-width="2"/>
-    <ellipse cx="40" cy="35" rx="6" ry="9" fill="#CD5C5C" stroke="#8B3A3A" stroke-width="2"/>
-    <rect x="26" y="15" width="8" height="24" rx="4" fill="#CD5C5C" stroke="#8B3A3A" stroke-width="2"/>
-    <circle cx="30" cy="13" r="5" fill="#CD5C5C" stroke="#8B3A3A" stroke-width="2"/>
-    <rect x="28" y="38" width="4" height="8" rx="2" fill="#A0522D" stroke="#8B3A3A" stroke-width="1.5"/>
-  </svg>`,
-  
-  DRAGON: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="17" ry="10" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <rect x="16" y="10" width="7" height="32" rx="3.5" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <circle cx="19.5" cy="8" r="4" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <rect x="25" y="6" width="7" height="36" rx="3.5" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <circle cx="28.5" cy="4" r="4" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <rect x="34" y="8" width="7" height="34" rx="3.5" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <circle cx="37.5" cy="6" r="4" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <rect x="43" y="12" width="7" height="30" rx="3.5" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-    <circle cx="46.5" cy="10" r="4" fill="#9370DB" stroke="#4B0082" stroke-width="2"/>
-  </svg>`,
-  
-  HORSE: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="16" ry="10" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-    <rect x="20" y="14" width="8" height="28" rx="4" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-    <circle cx="24" cy="12" r="5" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-    <rect x="32" y="14" width="8" height="28" rx="4" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-    <circle cx="36" cy="12" r="5" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-    <ellipse cx="14" cy="38" rx="4" ry="7" fill="#A0522D" stroke="#654321" stroke-width="1.5"/>
-    <ellipse cx="46" cy="38" rx="4" ry="7" fill="#A0522D" stroke="#654321" stroke-width="1.5"/>
-  </svg>`,
-  
-  RAT: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="15" ry="9" fill="#696969" stroke="#2F4F4F" stroke-width="2"/>
-    <ellipse cx="22" cy="38" rx="5" ry="8" fill="#696969" stroke="#2F4F4F" stroke-width="2"/>
-    <ellipse cx="38" cy="38" rx="5" ry="8" fill="#696969" stroke="#2F4F4F" stroke-width="2"/>
-    <rect x="26" y="16" width="8" height="26" rx="4" fill="#696969" stroke="#2F4F4F" stroke-width="2"/>
-    <circle cx="30" cy="14" r="5" fill="#696969" stroke="#2F4F4F" stroke-width="2"/>
-    <circle cx="16" cy="32" r="3" fill="#696969" stroke="#2F4F4F" stroke-width="1.5"/>
-    <circle cx="44" cy="32" r="3" fill="#696969" stroke="#2F4F4F" stroke-width="1.5"/>
+  POINT: `<svg width="60" height="60" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="45" rx="16" ry="10" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
+    <rect x="26" y="10" width="8" height="30" rx="4" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
+    <circle cx="30" cy="9" r="5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
+    <ellipse cx="38" cy="36" rx="4" ry="7" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
+    <ellipse cx="44" cy="39" rx="3.5" ry="6" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
+    <ellipse cx="18" cy="40" rx="5" ry="6" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
+    <text x="30" y="58" text-anchor="middle" fill="#2F847C" font-size="12" font-weight="bold">☝️</text>
   </svg>`
 };
 
@@ -459,65 +455,33 @@ function onResults(results) {
 }
 
 function detectGesture(lm) {
-  const thumbExtended = lm[4].x < lm[3].x - 0.02;
-  const indexExtended = lm[8].y < lm[6].y;
-  const middleExtended = lm[12].y < lm[10].y;
-  const ringExtended = lm[16].y < lm[14].y;
-  const pinkyExtended = lm[20].y < lm[18].y;
+  // More lenient detection with lower thresholds
+  const thumbExtended = lm[4].x < lm[3].x - 0.015; // More lenient
+  const indexExtended = lm[8].y < lm[6].y + 0.01; // More lenient
+  const middleExtended = lm[12].y < lm[10].y + 0.01;
+  const ringExtended = lm[16].y < lm[14].y + 0.01;
+  const pinkyExtended = lm[20].y < lm[18].y + 0.01;
   
-  // BIRD: Thumb and index extended
-  if (thumbExtended && indexExtended && !middleExtended && !ringExtended) {
-    return 'BIRD';
+  const extendedCount = [indexExtended, middleExtended, ringExtended, pinkyExtended].filter(Boolean).length;
+  
+  // FIST: All fingers curled (0-1 extended)
+  if (extendedCount <= 1 && !indexExtended) {
+    return 'FIST';
   }
   
-  // SNAKE: All fingers extended
-  if (indexExtended && middleExtended && ringExtended && pinkyExtended) {
-    return 'SNAKE';
+  // PALM: All fingers extended (3-4 extended is good enough)
+  if (extendedCount >= 3) {
+    return 'PALM';
   }
   
-  // TIGER: Index and middle extended (peace sign)
-  if (indexExtended && middleExtended && !ringExtended && !pinkyExtended) {
-    return 'TIGER';
+  // PEACE: Index and middle extended (most lenient)
+  if (indexExtended && middleExtended && extendedCount === 2) {
+    return 'PEACE';
   }
   
-  // OX: Only thumbs visible (fist with thumbs up)
-  if (thumbExtended && !indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
-    return 'OX';
-  }
-  
-  // RABBIT: Index and middle slightly apart and extended
-  if (indexExtended && middleExtended && !ringExtended && !pinkyExtended) {
-    return 'RABBIT';
-  }
-  
-  // MONKEY: All fingers curled (fist)
-  if (!indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
-    return 'MONKEY';
-  }
-  
-  // RAM: Hands together (detected by proximity - using index finger tips)
-  if (indexExtended && !thumbExtended) {
-    return 'RAM';
-  }
-  
-  // BOAR: Index extended, others curled
-  if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended && !thumbExtended) {
-    return 'BOAR';
-  }
-  
-  // DRAGON: All four fingers extended (no thumb)
-  if (!thumbExtended && indexExtended && middleExtended && ringExtended && pinkyExtended) {
-    return 'DRAGON';
-  }
-  
-  // HORSE: Thumb and pinky extended (shaka sign)
-  if (thumbExtended && !indexExtended && !middleExtended && !ringExtended && pinkyExtended) {
-    return 'HORSE';
-  }
-  
-  // RAT: Only index and thumb together (OK sign approximation)
-  if (thumbExtended && indexExtended && !middleExtended) {
-    return 'RAT';
+  // POINT: Only index extended
+  if (indexExtended && !middleExtended && extendedCount === 1) {
+    return 'POINT';
   }
   
   return null;
@@ -527,8 +491,8 @@ function drawPowerEffect(landmarks) {
   const jutsu = jutsuList[currentJutsu];
   const time = Date.now() / 100;
   
-  // Draw effect at fingertips instead of wrist
-  const fingertips = [4, 8, 12, 16, 20]; // thumb, index, middle, ring, pinky tips
+  // Draw effect at fingertips
+  const fingertips = [4, 8, 12, 16, 20];
   
   fingertips.forEach((tipIndex, i) => {
     const tip = landmarks[tipIndex];
@@ -549,8 +513,28 @@ function drawPowerEffect(landmarks) {
       drawByakugan(x, y, time, i);
     } else if (currentJutsu === 'waterdragon') {
       drawWaterDragon(x, y, time, i);
-    } else if (currentJutsu === 'amaterasu') {
-      drawAmaterasu(x, y, time, i);
+    } else if (currentJutsu === 'substitution') {
+      drawSubstitution(x, y, time, i);
+    } else if (currentJutsu === 'transformation') {
+      drawTransformation(x, y, time, i);
+    } else if (currentJutsu === 'summoning') {
+      drawSummoning(x, y, time, i);
+    } else if (currentJutsu === 'earthwall') {
+      drawEarthWall(x, y, time, i);
+    } else if (currentJutsu === 'windscythe') {
+      drawWindScythe(x, y, time, i);
+    } else if (currentJutsu === 'lightningblade') {
+      drawLightningBlade(x, y, time, i);
+    } else if (currentJutsu === 'icemirrors') {
+      drawIceMirrors(x, y, time, i);
+    } else if (currentJutsu === 'sandcoffin') {
+      drawSandCoffin(x, y, time, i);
+    } else if (currentJutsu === 'eightgates') {
+      drawEightGates(x, y, time, i);
+    } else if (currentJutsu === 'particlestyle') {
+      drawParticleStyle(x, y, time, i);
+    } else if (currentJutsu === 'woodstyle') {
+      drawWoodStyle(x, y, time, i);
     }
   });
 }
@@ -568,7 +552,6 @@ function drawChidori(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Lightning bolts
   canvasCtx.strokeStyle = `rgba(255, 255, 255, ${0.6 + Math.random() * 0.4})`;
   canvasCtx.lineWidth = 2;
   canvasCtx.shadowBlur = 8;
@@ -594,7 +577,6 @@ function drawChidori(x, y, time, index) {
 function drawRasengan(x, y, time, index) {
   const radius = 30 + Math.sin(time + index) * 5;
   
-  // Spiraling energy
   for(let i = 0; i < 3; i++) {
     const offset = (time * 2 + i * Math.PI * 2 / 3);
     canvasCtx.strokeStyle = `rgba(65, 105, 225, ${0.7 - i * 0.2})`;
@@ -618,7 +600,6 @@ function drawRasengan(x, y, time, index) {
 function drawFireball(x, y, time, index) {
   const pulse = Math.sin(time * 2 + index) * 8 + 35;
   
-  // Fire gradient
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
   gradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
   gradient.addColorStop(0.3, 'rgba(255, 140, 0, 0.8)');
@@ -630,7 +611,6 @@ function drawFireball(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Flame particles
   for(let i = 0; i < 8; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = Math.random() * pulse;
@@ -647,7 +627,6 @@ function drawFireball(x, y, time, index) {
 function drawShadowClone(x, y, time, index) {
   const pulse = Math.sin(time + index) * 6 + 30;
   
-  // Purple shadow effect
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
   gradient.addColorStop(0, 'rgba(147, 112, 219, 0.8)');
   gradient.addColorStop(0.5, 'rgba(75, 0, 130, 0.4)');
@@ -658,7 +637,6 @@ function drawShadowClone(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Clone silhouettes
   for(let i = 0; i < 3; i++) {
     const angle = time + i * Math.PI * 2 / 3;
     const dist = 40 + Math.sin(time + i) * 10;
@@ -675,7 +653,6 @@ function drawShadowClone(x, y, time, index) {
 function drawSharingan(x, y, time, index) {
   const pulse = 30 + Math.sin(time + index) * 5;
   
-  // Red eye glow
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
   gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
   gradient.addColorStop(0.2, 'rgba(220, 20, 60, 0.8)');
@@ -687,7 +664,6 @@ function drawSharingan(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Tomoe (spinning comma shapes)
   canvasCtx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
   canvasCtx.lineWidth = 3;
   for(let i = 0; i < 3; i++) {
@@ -705,7 +681,6 @@ function drawSharingan(x, y, time, index) {
 function drawByakugan(x, y, time, index) {
   const pulse = 28 + Math.sin(time + index) * 4;
   
-  // White/lavender glow
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
   gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
   gradient.addColorStop(0.3, 'rgba(230, 230, 250, 0.7)');
@@ -716,7 +691,6 @@ function drawByakugan(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Veins radiating
   canvasCtx.strokeStyle = 'rgba(200, 200, 250, 0.6)';
   canvasCtx.lineWidth = 2;
   for(let i = 0; i < 6; i++) {
@@ -731,7 +705,6 @@ function drawByakugan(x, y, time, index) {
 function drawWaterDragon(x, y, time, index) {
   const pulse = 32 + Math.sin(time + index) * 6;
   
-  // Water blue effect
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
   gradient.addColorStop(0, 'rgba(173, 216, 230, 0.9)');
   gradient.addColorStop(0.4, 'rgba(30, 144, 255, 0.6)');
@@ -742,7 +715,6 @@ function drawWaterDragon(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Water droplets
   for(let i = 0; i < 10; i++) {
     const angle = time * 2 + i * Math.PI / 5;
     const dist = 20 + Math.sin(time + i) * 15;
@@ -756,14 +728,12 @@ function drawWaterDragon(x, y, time, index) {
   }
 }
 
-function drawAmaterasu(x, y, time, index) {
-  const pulse = 35 + Math.sin(time + index) * 7;
+function drawSubstitution(x, y, time, index) {
+  const pulse = 28 + Math.sin(time + index) * 5;
   
-  // Black flames
   let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(50, 50, 50, 0.9)');
-  gradient.addColorStop(0.3, 'rgba(0, 0, 0, 0.7)');
-  gradient.addColorStop(0.6, 'rgba(139, 0, 0, 0.3)');
+  gradient.addColorStop(0, 'rgba(139, 69, 19, 0.8)');
+  gradient.addColorStop(0.5, 'rgba(210, 180, 140, 0.4)');
   gradient.addColorStop(1, 'transparent');
   
   canvasCtx.fillStyle = gradient;
@@ -771,17 +741,285 @@ function drawAmaterasu(x, y, time, index) {
   canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
   canvasCtx.fill();
   
-  // Dark red accents
+  // Wood chips
   for(let i = 0; i < 6; i++) {
     const angle = time + i * Math.PI / 3;
     const dist = pulse * 0.7;
     const px = x + Math.cos(angle) * dist;
     const py = y + Math.sin(angle) * dist;
     
-    canvasCtx.fillStyle = `rgba(139, 0, 0, ${0.4 + Math.random() * 0.3})`;
+    canvasCtx.fillStyle = `rgba(139, 69, 19, ${0.5 + Math.random() * 0.3})`;
+    canvasCtx.fillRect(px - 3, py - 3, 6, 6);
+  }
+}
+
+function drawTransformation(x, y, time, index) {
+  const pulse = 32 + Math.sin(time + index) * 7;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
+  gradient.addColorStop(0.3, 'rgba(255, 255, 224, 0.6)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Sparkles
+  for(let i = 0; i < 10; i++) {
+    const angle = time * 3 + i * Math.PI / 5;
+    const dist = 15 + Math.random() * pulse * 0.5;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    
+    canvasCtx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
     canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 4, 0, 2 * Math.PI);
+    canvasCtx.arc(px, py, 2, 0, 2 * Math.PI);
     canvasCtx.fill();
+  }
+}
+
+function drawSummoning(x, y, time, index) {
+  const pulse = 35 + Math.sin(time + index) * 6;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(139, 0, 0, 0.9)');
+  gradient.addColorStop(0.4, 'rgba(255, 0, 0, 0.5)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Kanji symbols
+  canvasCtx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+  canvasCtx.lineWidth = 2;
+  for(let i = 0; i < 5; i++) {
+    const angle = time + i * Math.PI * 2 / 5;
+    const dist = pulse * 0.6;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    
+    canvasCtx.strokeRect(px - 4, py - 4, 8, 8);
+  }
+}
+
+function drawEarthWall(x, y, time, index) {
+  const pulse = 30 + Math.sin(time + index) * 5;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(139, 69, 19, 0.9)');
+  gradient.addColorStop(0.5, 'rgba(160, 82, 45, 0.5)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Rock chunks
+  for(let i = 0; i < 8; i++) {
+    const angle = time + i * Math.PI / 4;
+    const dist = 20 + Math.random() * 15;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    const size = 3 + Math.random() * 4;
+    
+    canvasCtx.fillStyle = `rgba(139, 69, 19, ${0.6 + Math.random() * 0.3})`;
+    canvasCtx.fillRect(px - size/2, py - size/2, size, size);
+  }
+}
+
+function drawWindScythe(x, y, time, index) {
+  const pulse = 33 + Math.sin(time + index) * 6;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(240, 255, 255, 0.8)');
+  gradient.addColorStop(0.4, 'rgba(135, 206, 235, 0.5)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Wind blades
+  canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  canvasCtx.lineWidth = 3;
+  for(let i = 0; i < 4; i++) {
+    const angle = time * 2 + i * Math.PI / 2;
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(x, y);
+    canvasCtx.lineTo(x + Math.cos(angle) * pulse, y + Math.sin(angle) * pulse);
+    canvasCtx.stroke();
+  }
+}
+
+function drawLightningBlade(x, y, time, index) {
+  const pulse = 32 + Math.sin(time + index) * 6;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(255, 255, 0, 1)');
+  gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.7)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Electric arcs
+  canvasCtx.strokeStyle = `rgba(255, 255, 0, ${0.7 + Math.random() * 0.3})`;
+  canvasCtx.lineWidth = 2;
+  for(let i = 0; i < 6; i++) {
+    const angle = time * 3 + i * Math.PI / 3;
+    const length = 25 + Math.random() * 15;
+    const endX = x + Math.cos(angle) * length;
+    const endY = y + Math.sin(angle) * length;
+    
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(x, y);
+    canvasCtx.lineTo(endX, endY);
+    canvasCtx.stroke();
+  }
+}
+
+function drawIceMirrors(x, y, time, index) {
+  const pulse = 30 + Math.sin(time + index) * 5;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(240, 248, 255, 0.9)');
+  gradient.addColorStop(0.4, 'rgba(176, 224, 230, 0.6)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Ice crystals
+  canvasCtx.strokeStyle = 'rgba(200, 230, 255, 0.8)';
+  canvasCtx.lineWidth = 2;
+  for(let i = 0; i < 6; i++) {
+    const angle = time + i * Math.PI / 3;
+    const dist = pulse * 0.6;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(px - 5, py);
+    canvasCtx.lineTo(px + 5, py);
+    canvasCtx.moveTo(px, py - 5);
+    canvasCtx.lineTo(px, py + 5);
+    canvasCtx.stroke();
+  }
+}
+
+function drawSandCoffin(x, y, time, index) {
+  const pulse = 31 + Math.sin(time + index) * 6;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(222, 184, 135, 0.9)');
+  gradient.addColorStop(0.5, 'rgba(210, 180, 140, 0.5)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Sand particles
+  for(let i = 0; i < 15; i++) {
+    const angle = time + i * Math.PI / 7.5;
+    const dist = 10 + Math.random() * pulse * 0.7;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    
+    canvasCtx.fillStyle = `rgba(210, 180, 140, ${0.5 + Math.random() * 0.4})`;
+    canvasCtx.beginPath();
+    canvasCtx.arc(px, py, 1 + Math.random() * 2, 0, 2 * Math.PI);
+    canvasCtx.fill();
+  }
+}
+
+function drawEightGates(x, y, time, index) {
+  const pulse = 35 + Math.sin(time * 1.5 + index) * 8;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(255, 0, 0, 1)');
+  gradient.addColorStop(0.3, 'rgba(255, 69, 0, 0.7)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Steam/energy waves
+  canvasCtx.strokeStyle = `rgba(255, 0, 0, ${0.6 + Math.random() * 0.3})`;
+  canvasCtx.lineWidth = 3;
+  for(let i = 0; i < 3; i++) {
+    const radius = pulse * (0.3 + i * 0.3);
+    canvasCtx.beginPath();
+    canvasCtx.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasCtx.stroke();
+  }
+}
+
+function drawParticleStyle(x, y, time, index) {
+  const pulse = 33 + Math.sin(time + index) * 7;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  gradient.addColorStop(0.2, 'rgba(200, 200, 255, 0.8)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Disintegrating particles
+  for(let i = 0; i < 20; i++) {
+    const angle = time * 2 + i * Math.PI / 10;
+    const dist = 15 + Math.random() * pulse * 0.6;
+    const px = x + Math.cos(angle) * dist;
+    const py = y + Math.sin(angle) * dist;
+    
+    canvasCtx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
+    canvasCtx.beginPath();
+    canvasCtx.arc(px, py, 1 + Math.random() * 2, 0, 2 * Math.PI);
+    canvasCtx.fill();
+  }
+}
+
+function drawWoodStyle(x, y, time, index) {
+  const pulse = 32 + Math.sin(time + index) * 6;
+  
+  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
+  gradient.addColorStop(0, 'rgba(34, 139, 34, 0.9)');
+  gradient.addColorStop(0.4, 'rgba(107, 142, 35, 0.6)');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.beginPath();
+  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Vine/branch lines
+  canvasCtx.strokeStyle = 'rgba(34, 139, 34, 0.8)';
+  canvasCtx.lineWidth = 3;
+  for(let i = 0; i < 5; i++) {
+    const angle = time + i * Math.PI * 2 / 5;
+    const length = pulse * 0.8;
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(x, y);
+    const endX = x + Math.cos(angle) * length;
+    const endY = y + Math.sin(angle) * length;
+    canvasCtx.lineTo(endX, endY);
+    canvasCtx.stroke();
   }
 }
 
@@ -806,7 +1044,6 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// Initialize on load
 resetSequence();
 </script>
 </body>
