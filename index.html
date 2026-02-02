@@ -8,9 +8,9 @@
   <style>
     body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
     #container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
-    canvas { position: absolute; transform: scaleX(-1); }
+    canvas { position: absolute; /* Transform removed to fix inversion */ }
     video { display: none; }
-    #ui { position: absolute; bottom: 20px; text-align: center; width: 100%; z-index: 10; }
+    #ui { position: absolute; bottom: 20px; text-align: center; width: 100%; z-index: 10; pointer-events: none; }
     .status { font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000; }
     .hint { color: #aaa; margin-top: 5px; }
   </style>
@@ -22,7 +22,7 @@
     <canvas id="output_canvas"></canvas>
     <div id="ui">
       <div id="status-text" class="status">Perform: Bird -> Snake -> Tiger</div>
-      <div class="hint">Show your palm to the camera to start</div>
+      <div class="hint">Show your hands to the camera to start</div>
     </div>
   </div>
 
@@ -42,19 +42,21 @@ function onResults(results) {
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   
-  // Mirror the video
-  canvasCtx.translate(canvasElement.width, 0);
-  canvasCtx.scale(-1, 1);
+  // 1. Draw the video feed directly (Removed mirroring/inversion logic)
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
   if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    // Loop through all detected hands
     for (const landmarks of results.multiHandLandmarks) {
-      // Draw tracking lines (optional)
+      
+      // Draw tracking lines for every hand detected
       drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
+      drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 1, radius: 3});
 
       // Basic Logic for Gesture Detection
       const gesture = detectGesture(landmarks);
       
+      // Check sequence progression
       if (gesture === sequence[currentStep]) {
         currentStep++;
         if (currentStep >= sequence.length) {
@@ -63,11 +65,13 @@ function onResults(results) {
           statusText.style.color = "#00d4ff";
         } else {
           statusText.innerText = `Next: ${sequence[currentStep]}`;
+          statusText.style.color = "white";
         }
       }
 
+      // If power is active, draw the effect on ALL hands
       if (powerActive) {
-        drawPowerEffect(landmarks[0]); // Draw at wrist/palm base
+        drawPowerEffect(landmarks[0]); // Landmark 0 is the wrist
       }
     }
   }
@@ -76,13 +80,25 @@ function onResults(results) {
 
 function detectGesture(lm) {
   // Simplified finger counting/position logic
+  // Note: This logic assumes an upright hand.
   const thumbUp = lm[4].y < lm[3].y;
   const indexUp = lm[8].y < lm[6].y;
   const middleUp = lm[12].y < lm[10].y;
+  const ringUp = lm[16].y < lm[14].y;
+  const pinkyUp = lm[20].y < lm[18].y;
 
-  if (indexUp && middleUp && !thumbUp) return 'TIGER';
-  if (!indexUp && !middleUp) return 'SNAKE'; 
+  // TIGER: Index and Middle fingers up, others down (Ram seal / Tiger)
+  if (indexUp && middleUp && !ringUp && !pinkyUp) return 'TIGER';
+  
+  // SNAKE: All fingers interlaced/up usually, but simpler check: All fingers up close together?
+  // Simplified Snake: All fingers up (open palm) or just Index/Middle/Ring/Pinky up
+  if (indexUp && middleUp && ringUp && pinkyUp) return 'SNAKE'; 
+  
+  // BIRD: Middle and Pinky usually, but here we used Thumb + Index in previous code.
+  // Let's stick to the previous logic or a distinct one.
+  // Previous logic: thumbUp && indexUp && !middleUp
   if (thumbUp && indexUp && !middleUp) return 'BIRD';
+  
   return null;
 }
 
@@ -115,8 +131,10 @@ function drawPowerEffect(base) {
 const hands = new Hands({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 });
+
+// 2. Set maxNumHands to 2 for dual tracking
 hands.setOptions({
-  maxNumHands: 1,
+  maxNumHands: 2,
   modelComplexity: 1,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
