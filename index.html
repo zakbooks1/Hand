@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shinobi Hand Seal Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <style>
+    body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
+    #container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+    canvas { position: absolute; transform: scaleX(-1); }
+    video { display: none; }
+    #ui { position: absolute; bottom: 20px; text-align: center; width: 100%; z-index: 10; }
+    .status { font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000; }
+    .hint { color: #aaa; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <video id="input_video"></video>
+    <canvas id="output_canvas"></canvas>
+    <div id="ui">
+      <div id="status-text" class="status">Perform: Bird -> Snake -> Tiger</div>
+      <div class="hint">Show your palm to the camera to start</div>
+    </div>
+  </div>
+
+<script>
+const videoElement = document.getElementById('input_video');
+const canvasElement = document.getElementById('output_canvas');
+const canvasCtx = canvasElement.getContext('2d');
+const statusText = document.getElementById('status-text');
+
+let currentStep = 0;
+const sequence = ['BIRD', 'SNAKE', 'TIGER'];
+let powerActive = false;
+
+function onResults(results) {
+  canvasElement.width = window.innerWidth;
+  canvasElement.height = window.innerHeight;
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  
+  // Mirror the video
+  canvasCtx.translate(canvasElement.width, 0);
+  canvasCtx.scale(-1, 1);
+  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    for (const landmarks of results.multiHandLandmarks) {
+      // Draw tracking lines (optional)
+      drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
+
+      // Basic Logic for Gesture Detection
+      const gesture = detectGesture(landmarks);
+      
+      if (gesture === sequence[currentStep]) {
+        currentStep++;
+        if (currentStep >= sequence.length) {
+          powerActive = true;
+          statusText.innerText = "CHIDORI ACTIVATED!";
+          statusText.style.color = "#00d4ff";
+        } else {
+          statusText.innerText = `Next: ${sequence[currentStep]}`;
+        }
+      }
+
+      if (powerActive) {
+        drawPowerEffect(landmarks[0]); // Draw at wrist/palm base
+      }
+    }
+  }
+  canvasCtx.restore();
+}
+
+function detectGesture(lm) {
+  // Simplified finger counting/position logic
+  const thumbUp = lm[4].y < lm[3].y;
+  const indexUp = lm[8].y < lm[6].y;
+  const middleUp = lm[12].y < lm[10].y;
+
+  if (indexUp && middleUp && !thumbUp) return 'TIGER';
+  if (!indexUp && !middleUp) return 'SNAKE'; 
+  if (thumbUp && indexUp && !middleUp) return 'BIRD';
+  return null;
+}
+
+function drawPowerEffect(base) {
+  const x = base.x * canvasElement.width;
+  const y = base.y * canvasElement.height;
+  
+  // Create a glowing lightning orb
+  canvasCtx.beginPath();
+  let gradient = canvasCtx.createRadialGradient(x, y, 10, x, y, 70);
+  gradient.addColorStop(0, 'white');
+  gradient.addColorStop(0.2, '#00d4ff');
+  gradient.addColorStop(1, 'transparent');
+  
+  canvasCtx.fillStyle = gradient;
+  canvasCtx.arc(x, y, 80, 0, 2 * Math.PI);
+  canvasCtx.fill();
+  
+  // Random lightning bolts
+  canvasCtx.strokeStyle = 'white';
+  canvasCtx.lineWidth = 2;
+  for(let i=0; i<5; i++) {
+    canvasCtx.beginPath();
+    canvasCtx.moveTo(x, y);
+    canvasCtx.lineTo(x + (Math.random()-0.5)*150, y + (Math.random()-0.5)*150);
+    canvasCtx.stroke();
+  }
+}
+
+const hands = new Hands({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+});
+hands.setOptions({
+  maxNumHands: 1,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+hands.onResults(onResults);
+
+const camera = new Camera(videoElement, {
+  onFrame: async () => {
+    await hands.send({image: videoElement});
+  },
+  width: 1280,
+  height: 720
+});
+camera.start();
+</script>
+</body>
+</html>
