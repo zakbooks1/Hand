@@ -1,157 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Shinobi Hand Seal Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shinobi Hand Seal Tracker - 3D Edition</title>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js"></script>
+
   <style>
-    body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
-    #container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
-    canvas { position: absolute; transform: scaleX(-1); }
+    body { margin: 0; background: #0a0a1f; color: white; font-family: sans-serif; overflow: hidden; }
+    #container { position: relative; width: 100vw; height: 100vh; }
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    #output_canvas { transform: scaleX(-1); z-index: 1; }
+    #three-canvas { pointer-events: none; z-index: 2; }
     video { display: none; }
-    #ui { position: absolute; bottom: 20px; text-align: center; width: 100%; z-index: 10; pointer-events: none; }
-    .status { font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000; }
-    .hint { color: #aaa; margin-top: 5px; font-size: 14px; }
-    .progress { margin-top: 10px; font-size: 18px; }
-    #reset-btn { 
-      position: absolute; 
-      top: 20px; 
-      right: 20px; 
-      padding: 10px 20px; 
-      background: #ff4444; 
-      border: none; 
-      color: white; 
-      cursor: pointer; 
-      border-radius: 5px;
-      pointer-events: auto;
-      font-size: 16px;
-      font-weight: bold;
-      z-index: 20;
+    #ui { position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
+    .status { font-size: 32px; font-weight: bold; text-shadow: 3px 3px 6px #000; }
+    .hint { color: #ccc; margin-top: 8px; font-size: 16px; }
+    .progress { margin-top: 12px; font-size: 20px; }
+    #reset-btn {
+      position: absolute; top: 20px; right: 20px; z-index: 20; pointer-events: auto;
+      padding: 12px 24px; background: #c62828; border: none; color: white;
+      font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer;
     }
-    #reset-btn:hover { background: #ff6666; }
+    #reset-btn:hover { background: #e53935; }
     #jutsu-selector {
-      position: absolute;
-      top: 20px;
-      right: 140px;
-      z-index: 20;
-      pointer-events: auto;
+      position: absolute; top: 20px; right: 180px; z-index: 20; pointer-events: auto;
     }
-    #jutsu-selector select {
-      padding: 10px 15px;
-      background: #333;
-      color: white;
-      border: 2px solid #00d4ff;
-      border-radius: 5px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
+    #jutsu-select {
+      padding: 12px 20px; background: #222; color: white; border: 2px solid #00d4ff;
+      border-radius: 8px; font-size: 16px; cursor: pointer;
     }
-    #jutsu-selector select:hover {
-      background: #444;
+    #seal-guide {
+      position: absolute; top: 20px; left: 20px; z-index: 20; pointer-events: none;
+      background: rgba(0,0,0,0.75); padding: 20px; border-radius: 12px;
+      border: 2px solid #00d4ff; max-height: 80vh; overflow-y: auto; min-width: 180px;
     }
-    #seal-guide { 
-      position: absolute; 
-      top: 20px; 
-      left: 20px; 
-      background: rgba(0, 0, 0, 0.8); 
-      padding: 15px; 
-      border-radius: 10px; 
-      border: 2px solid #00d4ff;
-      z-index: 20;
-      pointer-events: none;
-      max-height: calc(100vh - 40px);
-      overflow-y: auto;
+    #seal-guide h3 { margin: 0 0 12px; color: #00d4ff; text-align: center; font-size: 20px; }
+    .jutsu-name { color: #ffeb3b; font-size: 16px; text-align: center; margin-bottom: 12px; font-weight: bold; }
+    .seal-icon { width: 80px; height: 80px; margin: 0 auto 6px; background: rgba(255,255,255,0.08);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent; transition: all 0.3s;
     }
-    #seal-guide h3 { 
-      margin: 0 0 10px 0; 
-      color: #00d4ff; 
-      font-size: 18px;
-      text-align: center;
-    }
-    .jutsu-name {
-      color: #ffd700;
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    .seal-icon { 
-      width: 70px; 
-      height: 70px; 
-      background: rgba(255, 255, 255, 0.1); 
-      border-radius: 5px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      margin-bottom: 5px;
-      border: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    .seal-icon.active { 
-      border-color: #4CAF50; 
-      background: rgba(76, 175, 80, 0.2);
-      box-shadow: 0 0 15px #4CAF50;
-    }
-    .seal-icon.completed { 
-      border-color: #00d4ff; 
-      background: rgba(0, 212, 255, 0.2);
-    }
-    .seal-label { 
-      font-size: 11px; 
-      text-align: center; 
-      color: #aaa;
-      font-weight: bold;
-    }
-    .seal-label.active { color: #4CAF50; }
+    .seal-icon.active { border-color: #4caf50; background: rgba(76,175,80,0.25); box-shadow: 0 0 20px #4caf50; }
+    .seal-icon.completed { border-color: #00d4ff; background: rgba(0,212,255,0.2); }
+    .seal-label { font-size: 13px; text-align: center; color: #bbb; font-weight: bold; }
+    .seal-label.active { color: #4caf50; }
     .seal-label.completed { color: #00d4ff; }
   </style>
 </head>
 <body>
 
-  <div id="container">
-    <video id="input_video"></video>
-    <canvas id="output_canvas"></canvas>
-    
-    <div id="jutsu-selector">
-      <select id="jutsu-select" onchange="changeJutsu()">
-        <option value="chidori">⚡ Chidori</option>
-        <option value="rasengan">🌀 Rasengan</option>
-        <option value="fireball">🔥 Fireball Jutsu</option>
-        <option value="shadowclone">👥 Shadow Clone</option>
-        <option value="sharingan">👁️ Sharingan</option>
-        <option value="byakugan">👀 Byakugan</option>
-        <option value="waterdragon">🌊 Water Dragon</option>
-        <option value="substitution">🪵 Substitution</option>
-        <option value="transformation">✨ Transformation</option>
-        <option value="summoning">📜 Summoning Jutsu</option>
-        <option value="earthwall">🪨 Earth Wall</option>
-        <option value="windscythe">💨 Wind Scythe</option>
-        <option value="lightningblade">⚡ Lightning Blade</option>
-        <option value="icemirrors">❄️ Ice Mirrors</option>
-        <option value="sandcoffin">🏜️ Sand Coffin</option>
-        <option value="eightgates">💪 Eight Gates</option>
-        <option value="particlestyle">✨ Particle Style</option>
-        <option value="woodstyle">🌳 Wood Style</option>
-      </select>
-    </div>
-    
-    <button id="reset-btn" onclick="resetSequence()">Reset</button>
-    
-    <div id="seal-guide">
-      <h3>Hand Seals</h3>
-      <div class="jutsu-name" id="jutsu-name">Chidori</div>
-      <div id="seals-container"></div>
-    </div>
-    
-    <div id="ui">
-      <div id="status-text" class="status">Loading...</div>
-      <div class="progress" id="progress-text">Progress: 0/0</div>
-      <div class="hint">Show your hands to the camera | Hold each seal for 1 second</div>
-    </div>
+<div id="container">
+  <video id="input_video"></video>
+  <canvas id="output_canvas"></canvas>
+  <canvas id="three-canvas"></canvas>
+
+  <div id="jutsu-selector">
+    <select id="jutsu-select" onchange="changeJutsu()">
+      <option value="chidori">⚡ Chidori</option>
+      <option value="rasengan">🌀 Rasengan</option>
+      <option value="fireball">🔥 Fireball Jutsu</option>
+      <option value="earthwall" selected>🪨 Earth Wall</option>
+      <option value="shadowclone">👥 Shadow Clone</option>
+      <option value="sharingan">👁️ Sharingan</option>
+      <option value="byakugan">👀 Byakugan</option>
+      <option value="waterdragon">🌊 Water Dragon</option>
+      <option value="substitution">🪵 Substitution</option>
+      <option value="transformation">✨ Transformation</option>
+      <option value="summoning">📜 Summoning</option>
+    </select>
   </div>
 
+  <button id="reset-btn" onclick="resetSequence()">Reset</button>
+
+  <div id="seal-guide">
+    <h3>Hand Seals</h3>
+    <div class="jutsu-name" id="jutsu-name">Earth Wall</div>
+    <div id="seals-container"></div>
+  </div>
+
+  <div id="ui">
+    <div id="status-text" class="status">Loading camera...</div>
+    <div class="progress" id="progress-text">Progress: 0/0</div>
+    <div class="hint">Show both hands to the camera • Hold each seal ~1 second</div>
+  </div>
+</div>
+
 <script>
+// ──────────────────────────────────────────────
+// Core variables
+// ──────────────────────────────────────────────
 const videoElement = document.getElementById('input_video');
 const canvasElement = document.getElementById('output_canvas');
 const canvasCtx = canvasElement.getContext('2d');
@@ -160,168 +105,107 @@ const progressText = document.getElementById('progress-text');
 const sealsContainer = document.getElementById('seals-container');
 const jutsuNameEl = document.getElementById('jutsu-name');
 
-// Jutsu configurations - ALL WITH EASIER SEALS
-const jutsuList = {
-  chidori: {
-    name: "Chidori",
-    seals: ['FIST', 'PALM', 'PEACE'],
-    color: '#00d4ff',
-    message: '⚡ CHIDORI ACTIVATED! ⚡'
-  },
-  rasengan: {
-    name: "Rasengan",
-    seals: ['PALM', 'FIST', 'PALM'],
-    color: '#4169E1',
-    message: '🌀 RASENGAN FORMED! 🌀'
-  },
-  fireball: {
-    name: "Fire Style: Fireball Jutsu",
-    seals: ['PALM', 'FIST', 'PEACE', 'PALM'],
-    color: '#FF4500',
-    message: '🔥 FIREBALL JUTSU! 🔥'
-  },
-  shadowclone: {
-    name: "Shadow Clone Jutsu",
-    seals: ['PEACE', 'FIST', 'PEACE'],
-    color: '#9370DB',
-    message: '👥 SHADOW CLONE JUTSU! 👥'
-  },
-  sharingan: {
-    name: "Sharingan Activation",
-    seals: ['POINT', 'PALM', 'FIST'],
-    color: '#DC143C',
-    message: '👁️ SHARINGAN ACTIVATED! 👁️'
-  },
-  byakugan: {
-    name: "Byakugan Activation",
-    seals: ['PEACE', 'PALM', 'POINT'],
-    color: '#E6E6FA',
-    message: '👀 BYAKUGAN! 👀'
-  },
-  waterdragon: {
-    name: "Water Style: Water Dragon",
-    seals: ['FIST', 'PALM', 'PEACE', 'PALM', 'FIST'],
-    color: '#1E90FF',
-    message: '🌊 WATER DRAGON JUTSU! 🌊'
-  },
-  substitution: {
-    name: "Substitution Jutsu",
-    seals: ['PALM', 'PEACE'],
-    color: '#8B4513',
-    message: '🪵 SUBSTITUTION! 🪵'
-  },
-  transformation: {
-    name: "Transformation Jutsu",
-    seals: ['POINT', 'PALM', 'PEACE'],
-    color: '#FFD700',
-    message: '✨ TRANSFORMATION! ✨'
-  },
-  summoning: {
-    name: "Summoning Jutsu",
-    seals: ['FIST', 'PEACE', 'PALM', 'FIST'],
-    color: '#8B0000',
-    message: '📜 SUMMONING JUTSU! 📜'
-  },
-  earthwall: {
-    name: "Earth Style: Earth Wall",
-    seals: ['FIST', 'PALM', 'FIST'],
-    color: '#8B4513',
-    message: '🪨 EARTH WALL! 🪨'
-  },
-  windscythe: {
-    name: "Wind Style: Wind Scythe",
-    seals: ['PALM', 'PEACE', 'PALM'],
-    color: '#87CEEB',
-    message: '💨 WIND SCYTHE! 💨'
-  },
-  lightningblade: {
-    name: "Lightning Blade",
-    seals: ['PEACE', 'FIST', 'POINT'],
-    color: '#FFFF00',
-    message: '⚡ LIGHTNING BLADE! ⚡'
-  },
-  icemirrors: {
-    name: "Ice Style: Crystal Ice Mirrors",
-    seals: ['PALM', 'POINT', 'PEACE', 'PALM'],
-    color: '#B0E0E6',
-    message: '❄️ ICE MIRRORS! ❄️'
-  },
-  sandcoffin: {
-    name: "Sand Coffin",
-    seals: ['FIST', 'FIST', 'PALM'],
-    color: '#DEB887',
-    message: '🏜️ SAND COFFIN! 🏜️'
-  },
-  eightgates: {
-    name: "Eight Gates Release",
-    seals: ['FIST', 'PEACE', 'FIST', 'PEACE'],
-    color: '#FF0000',
-    message: '💪 EIGHT GATES OPEN! 💪'
-  },
-  particlestyle: {
-    name: "Particle Style",
-    seals: ['PALM', 'PEACE', 'PALM', 'FIST'],
-    color: '#FFFFFF',
-    message: '✨ PARTICLE STYLE! ✨'
-  },
-  woodstyle: {
-    name: "Wood Style: Deep Forest",
-    seals: ['FIST', 'PALM', 'PEACE', 'PALM'],
-    color: '#228B22',
-    message: '🌳 WOOD STYLE! 🌳'
-  }
-};
-
-let currentJutsu = 'chidori';
+let currentJutsu = 'earthwall';
 let currentStep = 0;
 let sequence = [];
 let powerActive = false;
 let lastGesture = null;
 let gestureHoldTime = 0;
-const HOLD_DURATION = 30;
+const HOLD_DURATION = 25; // ≈0.8–1s at 30–60fps
 
-// Seal SVG icons - SIMPLIFIED TO 4 EASY GESTURES
-const sealIcons = {
-  FIST: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="35" rx="18" ry="20" fill="#CD853F" stroke="#8B4513" stroke-width="3"/>
-    <ellipse cx="20" cy="28" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
-    <ellipse cx="30" cy="26" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
-    <ellipse cx="40" cy="28" rx="5" ry="8" fill="#A0522D" stroke="#8B4513" stroke-width="2"/>
-    <text x="30" y="50" text-anchor="middle" fill="#FFF" font-size="12" font-weight="bold">✊</text>
-  </svg>`,
-  
-  PALM: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="48" rx="18" ry="9" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <rect x="18" y="8" width="6" height="36" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <rect x="26" y="5" width="6" height="39" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <rect x="34" y="6" width="6" height="38" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <rect x="42" y="10" width="6" height="34" rx="3" fill="#FFE4B5" stroke="#CD853F" stroke-width="2"/>
-    <text x="30" y="58" text-anchor="middle" fill="#8B4513" font-size="12" font-weight="bold">🖐️</text>
-  </svg>`,
-  
-  PEACE: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="46" rx="16" ry="10" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
-    <rect x="22" y="10" width="7" height="32" rx="3.5" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
-    <rect x="31" y="8" width="7" height="34" rx="3.5" fill="#FFB6C1" stroke="#C71585" stroke-width="2"/>
-    <ellipse cx="42" cy="38" rx="4" ry="8" fill="#DB7093" stroke="#C71585" stroke-width="1.5"/>
-    <ellipse cx="18" cy="42" rx="5" ry="6" fill="#DB7093" stroke="#C71585" stroke-width="1.5"/>
-    <text x="30" y="58" text-anchor="middle" fill="#C71585" font-size="12" font-weight="bold">✌️</text>
-  </svg>`,
-  
-  POINT: `<svg width="60" height="60" viewBox="0 0 60 60">
-    <ellipse cx="30" cy="45" rx="16" ry="10" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <rect x="26" y="10" width="8" height="30" rx="4" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <circle cx="30" cy="9" r="5" fill="#98D8C8" stroke="#2F847C" stroke-width="2"/>
-    <ellipse cx="38" cy="36" rx="4" ry="7" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
-    <ellipse cx="44" cy="39" rx="3.5" ry="6" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
-    <ellipse cx="18" cy="40" rx="5" ry="6" fill="#5F9EA0" stroke="#2F847C" stroke-width="1.5"/>
-    <text x="30" y="58" text-anchor="middle" fill="#2F847C" font-size="12" font-weight="bold">☝️</text>
-  </svg>`
+// ──────────────────────────────────────────────
+// Jutsu definitions (easy 3–5 seal sequences)
+// ──────────────────────────────────────────────
+const jutsuList = {
+  earthwall: { name: "Earth Style: Earth Wall", seals: ['FIST','PALM','FIST'], color: '#8B4513', message: '🪨 EARTH WALL RAISED! 🪨' },
+  chidori:   { name: "Chidori", seals: ['FIST','PALM','PEACE'], color: '#00d4ff', message: '⚡ CHIDORI ACTIVATED! ⚡' },
+  rasengan:  { name: "Rasengan", seals: ['PALM','FIST','PALM'], color: '#4169E1', message: '🌀 RASENGAN FORMED! 🌀' },
+  fireball:  { name: "Fireball Jutsu", seals: ['PALM','FIST','PEACE','PALM'], color: '#FF4500', message: '🔥 FIREBALL JUTSU! 🔥' },
+  shadowclone: { name: "Shadow Clone Jutsu", seals: ['PEACE','FIST','PEACE'], color: '#9370DB', message: '👥 CLONES CREATED! 👥' },
+  // add more as needed...
 };
 
+// ──────────────────────────────────────────────
+// Seal SVG icons
+// ──────────────────────────────────────────────
+const sealIcons = {
+  FIST: `<svg width="70" height="70" viewBox="0 0 60 60"><ellipse cx="30" cy="35" rx="18" ry="20" fill="#CD853F" stroke="#8B4513" stroke-width="3"/><text x="30" y="50" text-anchor="middle" fill="#FFF" font-size="28">✊</text></svg>`,
+  PALM: `<svg width="70" height="70" viewBox="0 0 60 60"><rect x="18" y="8" width="24" height="36" rx="6" fill="#FFE4B5" stroke="#CD853F" stroke-width="3"/><text x="30" y="55" text-anchor="middle" fill="#8B4513" font-size="28">🖐️</text></svg>`,
+  PEACE: `<svg width="70" height="70" viewBox="0 0 60 60"><rect x="20" y="10" width="20" height="34" rx="6" fill="#FFB6C1" stroke="#C71585" stroke-width="3"/><text x="30" y="55" text-anchor="middle" fill="#C71585" font-size="28">✌️</text></svg>`,
+  POINT: `<svg width="70" height="70" viewBox="0 0 60 60"><rect x="24" y="10" width="12" height="34" rx="6" fill="#98D8C8" stroke="#2F847C" stroke-width="3"/><circle cx="30" cy="12" r="8" fill="#98D8C8" stroke="#2F847C" stroke-width="3"/><text x="30" y="55" text-anchor="middle" fill="#2F847C" font-size="28">☝️</text></svg>`
+};
+
+// ──────────────────────────────────────────────
+// Three.js 3D setup
+// ──────────────────────────────────────────────
+const threeCanvas = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+const threeCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+threeCamera.position.set(0, 0, 8);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(5, 10, 7);
+scene.add(dirLight);
+
+let earthWall = null;
+
+function createEarthWall(wristX, wristY, wristZ) {
+  if (earthWall) scene.remove(earthWall);
+
+  const geometry = new THREE.BoxGeometry(5, 4, 0.6);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x8B4513,
+    roughness: 0.95,
+    metalness: 0.05
+  });
+  earthWall = new THREE.Mesh(geometry, material);
+
+  // Position roughly in front of hand (normalized coords → world space)
+  earthWall.position.set(
+    (wristX - 0.5) * 12,
+    (0.5 - wristY) * 12,
+    -3 + wristZ * -15   // closer if hand is closer to camera
+  );
+
+  earthWall.rotation.y = Math.random() * 0.4 - 0.2; // slight tilt
+  earthWall.scale.set(0.1, 0.1, 0.1);
+
+  scene.add(earthWall);
+
+  // Grow animation
+  let s = 0.1;
+  const grow = setInterval(() => {
+    s += 0.04;
+    earthWall.scale.set(s, s, s);
+    if (s >= 1) clearInterval(grow);
+  }, 40);
+}
+
+function animateThree() {
+  requestAnimationFrame(animateThree);
+  if (earthWall) {
+    earthWall.rotation.y += 0.002;
+  }
+  renderer.render(scene, threeCamera);
+}
+animateThree();
+
+window.addEventListener('resize', () => {
+  threeCamera.aspect = window.innerWidth / window.innerHeight;
+  threeCamera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ──────────────────────────────────────────────
+// Gesture logic & main loop
+// ──────────────────────────────────────────────
 function changeJutsu() {
-  const select = document.getElementById('jutsu-select');
-  currentJutsu = select.value;
+  currentJutsu = document.getElementById('jutsu-select').value;
   resetSequence();
 }
 
@@ -330,53 +214,60 @@ function resetSequence() {
   powerActive = false;
   lastGesture = null;
   gestureHoldTime = 0;
-  
-  const jutsu = jutsuList[currentJutsu];
-  sequence = jutsu.seals;
-  
-  jutsuNameEl.innerText = jutsu.name;
+  if (earthWall) { scene.remove(earthWall); earthWall = null; }
+
+  const j = jutsuList[currentJutsu];
+  sequence = j.seals;
+  jutsuNameEl.innerText = j.name;
   statusText.innerText = `Perform: ${sequence.join(' → ')}`;
   statusText.style.color = "white";
   progressText.innerText = `Progress: 0/${sequence.length}`;
-  
   renderSeals();
   updateSealGuide();
 }
 
 function renderSeals() {
   sealsContainer.innerHTML = '';
-  const jutsu = jutsuList[currentJutsu];
-  
-  jutsu.seals.forEach((seal, index) => {
-    const sealDiv = document.createElement('div');
-    sealDiv.id = `seal-${index}`;
-    sealDiv.style.marginTop = index > 0 ? '10px' : '0';
-    
-    sealDiv.innerHTML = `
+  sequence.forEach((seal, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = `
       <div class="seal-icon">${sealIcons[seal]}</div>
-      <div class="seal-label">${index + 1}. ${seal}</div>
+      <div class="seal-label">${i+1}. ${seal}</div>
     `;
-    
-    sealsContainer.appendChild(sealDiv);
+    sealsContainer.appendChild(div);
   });
 }
 
 function updateSealGuide() {
-  sequence.forEach((seal, index) => {
-    const icon = document.querySelector(`#seal-${index} .seal-icon`);
-    const label = document.querySelector(`#seal-${index} .seal-label`);
-    
-    icon.classList.remove('active', 'completed');
-    label.classList.remove('active', 'completed');
-    
-    if (index < currentStep) {
+  document.querySelectorAll('#seals-container > div').forEach((el, i) => {
+    const icon = el.querySelector('.seal-icon');
+    const label = el.querySelector('.seal-label');
+    icon.classList.remove('active','completed');
+    label.classList.remove('active','completed');
+    if (i < currentStep) {
       icon.classList.add('completed');
       label.classList.add('completed');
-    } else if (index === currentStep && !powerActive) {
+    } else if (i === currentStep && !powerActive) {
       icon.classList.add('active');
       label.classList.add('active');
     }
   });
+}
+
+function detectGesture(lm) {
+  const thumb = lm[4].x < lm[3].x - 0.02;
+  const idx   = lm[8].y < lm[6].y + 0.015;
+  const mid   = lm[12].y < lm[10].y + 0.015;
+  const ring  = lm[16].y < lm[14].y + 0.015;
+  const pinky = lm[20].y < lm[18].y + 0.015;
+
+  const ext = [idx, mid, ring, pinky].filter(Boolean).length;
+
+  if (ext <= 1 && !idx) return 'FIST';
+  if (ext >= 3) return 'PALM';
+  if (idx && mid && ext === 2) return 'PEACE';
+  if (idx && !mid && ext === 1) return 'POINT';
+  return null;
 }
 
 function onResults(results) {
@@ -384,655 +275,88 @@ function onResults(results) {
   canvasElement.height = window.innerHeight;
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-    let detectedGesture = null;
-    
-    for (const landmarks of results.multiHandLandmarks) {
-      drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
-      drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 1, radius: 3});
+  let detected = null;
+  let wristPos = null;
 
-      const gesture = detectGesture(landmarks);
-      if (gesture) {
-        detectedGesture = gesture;
-      }
+  if (results.multiHandLandmarks) {
+    for (const lm of results.multiHandLandmarks) {
+      drawConnectors(canvasCtx, lm, HAND_CONNECTIONS, {color: '#00ff88', lineWidth: 3});
+      drawLandmarks(canvasCtx, lm, {color: '#ff3366', lineWidth: 1.5, radius: 4});
 
-      if (powerActive) {
-        drawPowerEffect(landmarks);
+      const g = detectGesture(lm);
+      if (g) detected = g;
+
+      // Use leftmost wrist for positioning (arbitrary choice)
+      if (!wristPos || lm[0].x < wristPos.x) {
+        wristPos = lm[0];
       }
     }
-    
-    if (!powerActive && detectedGesture === sequence[currentStep]) {
-      if (lastGesture === detectedGesture) {
-        gestureHoldTime++;
-        
-        const holdPercent = Math.min(100, (gestureHoldTime / HOLD_DURATION) * 100);
-        statusText.innerText = `Hold ${detectedGesture}... ${holdPercent.toFixed(0)}%`;
-        
-        if (gestureHoldTime >= HOLD_DURATION) {
-          currentStep++;
-          gestureHoldTime = 0;
-          
-          if (currentStep >= sequence.length) {
-            powerActive = true;
-            const jutsu = jutsuList[currentJutsu];
-            statusText.innerText = jutsu.message;
-            statusText.style.color = jutsu.color;
-            progressText.innerText = `Progress: ${sequence.length}/${sequence.length} - COMPLETE!`;
-            updateSealGuide();
-          } else {
-            statusText.innerText = `Next: ${sequence[currentStep]}`;
-            statusText.style.color = "#4CAF50";
-            progressText.innerText = `Progress: ${currentStep}/${sequence.length}`;
-            updateSealGuide();
-            setTimeout(() => {
-              statusText.style.color = "white";
-            }, 1000);
-          }
-        }
-      } else {
-        gestureHoldTime = 0;
-      }
-      lastGesture = detectedGesture;
-    } else if (detectedGesture !== sequence[currentStep]) {
-      if (gestureHoldTime > 0) {
-        gestureHoldTime = 0;
-        if (!powerActive) {
-          statusText.innerText = `Perform: ${sequence[currentStep]}`;
-          statusText.style.color = "white";
-        }
-      }
-      lastGesture = detectedGesture;
-    }
-  } else {
-    gestureHoldTime = 0;
-    lastGesture = null;
   }
-  
+
+  if (!powerActive && detected === sequence[currentStep]) {
+    if (lastGesture === detected) {
+      gestureHoldTime++;
+      const pct = Math.min(100, (gestureHoldTime / HOLD_DURATION) * 100);
+      statusText.innerText = `Hold ${detected}... ${pct.toFixed(0)}%`;
+
+      if (gestureHoldTime >= HOLD_DURATION) {
+        currentStep++;
+        gestureHoldTime = 0;
+
+        if (currentStep >= sequence.length) {
+          powerActive = true;
+          const j = jutsuList[currentJutsu];
+          statusText.innerText = j.message;
+          statusText.style.color = j.color;
+          progressText.innerText = `COMPLETE!`;
+
+          // 3D Earth Wall spawn
+          if (currentJutsu === 'earthwall' && wristPos) {
+            createEarthWall(wristPos.x, wristPos.y, wristPos.z);
+          }
+          // You can add more 3D effects for other jutsus here
+        } else {
+          statusText.innerText = `Next: ${sequence[currentStep]}`;
+          statusText.style.color = "#4caf50";
+          progressText.innerText = `Progress: ${currentStep}/${sequence.length}`;
+          setTimeout(() => { if (!powerActive) statusText.style.color = "white"; }, 1200);
+        }
+        updateSealGuide();
+      }
+    } else {
+      gestureHoldTime = 0;
+    }
+    lastGesture = detected;
+  } else if (detected !== sequence[currentStep]) {
+    if (gestureHoldTime > 0) {
+      gestureHoldTime = 0;
+      if (!powerActive) {
+        statusText.innerText = `Perform: ${sequence[currentStep]}`;
+        statusText.style.color = "white";
+      }
+    }
+    lastGesture = detected;
+  }
+
   canvasCtx.restore();
 }
 
-function detectGesture(lm) {
-  // More lenient detection with lower thresholds
-  const thumbExtended = lm[4].x < lm[3].x - 0.015; // More lenient
-  const indexExtended = lm[8].y < lm[6].y + 0.01; // More lenient
-  const middleExtended = lm[12].y < lm[10].y + 0.01;
-  const ringExtended = lm[16].y < lm[14].y + 0.01;
-  const pinkyExtended = lm[20].y < lm[18].y + 0.01;
-  
-  const extendedCount = [indexExtended, middleExtended, ringExtended, pinkyExtended].filter(Boolean).length;
-  
-  // FIST: All fingers curled (0-1 extended)
-  if (extendedCount <= 1 && !indexExtended) {
-    return 'FIST';
-  }
-  
-  // PALM: All fingers extended (3-4 extended is good enough)
-  if (extendedCount >= 3) {
-    return 'PALM';
-  }
-  
-  // PEACE: Index and middle extended (most lenient)
-  if (indexExtended && middleExtended && extendedCount === 2) {
-    return 'PEACE';
-  }
-  
-  // POINT: Only index extended
-  if (indexExtended && !middleExtended && extendedCount === 1) {
-    return 'POINT';
-  }
-  
-  return null;
-}
-
-function drawPowerEffect(landmarks) {
-  const jutsu = jutsuList[currentJutsu];
-  const time = Date.now() / 100;
-  
-  // Draw effect at fingertips
-  const fingertips = [4, 8, 12, 16, 20];
-  
-  fingertips.forEach((tipIndex, i) => {
-    const tip = landmarks[tipIndex];
-    const x = tip.x * canvasElement.width;
-    const y = tip.y * canvasElement.height;
-    
-    if (currentJutsu === 'chidori') {
-      drawChidori(x, y, time, i);
-    } else if (currentJutsu === 'rasengan') {
-      drawRasengan(x, y, time, i);
-    } else if (currentJutsu === 'fireball') {
-      drawFireball(x, y, time, i);
-    } else if (currentJutsu === 'shadowclone') {
-      drawShadowClone(x, y, time, i);
-    } else if (currentJutsu === 'sharingan') {
-      drawSharingan(x, y, time, i);
-    } else if (currentJutsu === 'byakugan') {
-      drawByakugan(x, y, time, i);
-    } else if (currentJutsu === 'waterdragon') {
-      drawWaterDragon(x, y, time, i);
-    } else if (currentJutsu === 'substitution') {
-      drawSubstitution(x, y, time, i);
-    } else if (currentJutsu === 'transformation') {
-      drawTransformation(x, y, time, i);
-    } else if (currentJutsu === 'summoning') {
-      drawSummoning(x, y, time, i);
-    } else if (currentJutsu === 'earthwall') {
-      drawEarthWall(x, y, time, i);
-    } else if (currentJutsu === 'windscythe') {
-      drawWindScythe(x, y, time, i);
-    } else if (currentJutsu === 'lightningblade') {
-      drawLightningBlade(x, y, time, i);
-    } else if (currentJutsu === 'icemirrors') {
-      drawIceMirrors(x, y, time, i);
-    } else if (currentJutsu === 'sandcoffin') {
-      drawSandCoffin(x, y, time, i);
-    } else if (currentJutsu === 'eightgates') {
-      drawEightGates(x, y, time, i);
-    } else if (currentJutsu === 'particlestyle') {
-      drawParticleStyle(x, y, time, i);
-    } else if (currentJutsu === 'woodstyle') {
-      drawWoodStyle(x, y, time, i);
-    }
-  });
-}
-
-function drawChidori(x, y, time, index) {
-  const pulse = Math.sin(time + index) * 5 + 35;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-  gradient.addColorStop(0.3, 'rgba(0, 212, 255, 0.7)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  canvasCtx.strokeStyle = `rgba(255, 255, 255, ${0.6 + Math.random() * 0.4})`;
-  canvasCtx.lineWidth = 2;
-  canvasCtx.shadowBlur = 8;
-  canvasCtx.shadowColor = '#00d4ff';
-  
-  for(let i = 0; i < 5; i++) {
-    const angle = (Math.PI * 2 * i) / 5 + time;
-    const length = 30 + Math.random() * 20;
-    const endX = x + Math.cos(angle) * length;
-    const endY = y + Math.sin(angle) * length;
-    
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(x, y);
-    const midX = (x + endX) / 2 + (Math.random() - 0.5) * 15;
-    const midY = (y + endY) / 2 + (Math.random() - 0.5) * 15;
-    canvasCtx.lineTo(midX, midY);
-    canvasCtx.lineTo(endX, endY);
-    canvasCtx.stroke();
-  }
-  canvasCtx.shadowBlur = 0;
-}
-
-function drawRasengan(x, y, time, index) {
-  const radius = 30 + Math.sin(time + index) * 5;
-  
-  for(let i = 0; i < 3; i++) {
-    const offset = (time * 2 + i * Math.PI * 2 / 3);
-    canvasCtx.strokeStyle = `rgba(65, 105, 225, ${0.7 - i * 0.2})`;
-    canvasCtx.lineWidth = 4 - i;
-    canvasCtx.shadowBlur = 10;
-    canvasCtx.shadowColor = '#4169E1';
-    
-    canvasCtx.beginPath();
-    for(let a = 0; a < Math.PI * 4; a += 0.1) {
-      const r = (a / (Math.PI * 4)) * radius;
-      const px = x + Math.cos(a + offset) * r;
-      const py = y + Math.sin(a + offset) * r;
-      if(a === 0) canvasCtx.moveTo(px, py);
-      else canvasCtx.lineTo(px, py);
-    }
-    canvasCtx.stroke();
-  }
-  canvasCtx.shadowBlur = 0;
-}
-
-function drawFireball(x, y, time, index) {
-  const pulse = Math.sin(time * 2 + index) * 8 + 35;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
-  gradient.addColorStop(0.3, 'rgba(255, 140, 0, 0.8)');
-  gradient.addColorStop(0.6, 'rgba(255, 69, 0, 0.5)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  for(let i = 0; i < 8; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const dist = Math.random() * pulse;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist - Math.random() * 10;
-    
-    canvasCtx.fillStyle = `rgba(255, ${100 + Math.random() * 100}, 0, ${Math.random() * 0.5})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 2 + Math.random() * 3, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawShadowClone(x, y, time, index) {
-  const pulse = Math.sin(time + index) * 6 + 30;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(147, 112, 219, 0.8)');
-  gradient.addColorStop(0.5, 'rgba(75, 0, 130, 0.4)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  for(let i = 0; i < 3; i++) {
-    const angle = time + i * Math.PI * 2 / 3;
-    const dist = 40 + Math.sin(time + i) * 10;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(75, 0, 130, ${0.3 - i * 0.1})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 8, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawSharingan(x, y, time, index) {
-  const pulse = 30 + Math.sin(time + index) * 5;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-  gradient.addColorStop(0.2, 'rgba(220, 20, 60, 0.8)');
-  gradient.addColorStop(0.7, 'rgba(139, 0, 0, 0.4)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  canvasCtx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-  canvasCtx.lineWidth = 3;
-  for(let i = 0; i < 3; i++) {
-    const angle = time + i * Math.PI * 2 / 3;
-    const dist = 15;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 5, 0, Math.PI);
-    canvasCtx.stroke();
-  }
-}
-
-function drawByakugan(x, y, time, index) {
-  const pulse = 28 + Math.sin(time + index) * 4;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.3, 'rgba(230, 230, 250, 0.7)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  canvasCtx.strokeStyle = 'rgba(200, 200, 250, 0.6)';
-  canvasCtx.lineWidth = 2;
-  for(let i = 0; i < 6; i++) {
-    const angle = time * 0.5 + i * Math.PI / 3;
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(x, y);
-    canvasCtx.lineTo(x + Math.cos(angle) * pulse, y + Math.sin(angle) * pulse);
-    canvasCtx.stroke();
-  }
-}
-
-function drawWaterDragon(x, y, time, index) {
-  const pulse = 32 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(173, 216, 230, 0.9)');
-  gradient.addColorStop(0.4, 'rgba(30, 144, 255, 0.6)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  for(let i = 0; i < 10; i++) {
-    const angle = time * 2 + i * Math.PI / 5;
-    const dist = 20 + Math.sin(time + i) * 15;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(30, 144, 255, ${0.5 + Math.random() * 0.3})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 3, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawSubstitution(x, y, time, index) {
-  const pulse = 28 + Math.sin(time + index) * 5;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(139, 69, 19, 0.8)');
-  gradient.addColorStop(0.5, 'rgba(210, 180, 140, 0.4)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Wood chips
-  for(let i = 0; i < 6; i++) {
-    const angle = time + i * Math.PI / 3;
-    const dist = pulse * 0.7;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(139, 69, 19, ${0.5 + Math.random() * 0.3})`;
-    canvasCtx.fillRect(px - 3, py - 3, 6, 6);
-  }
-}
-
-function drawTransformation(x, y, time, index) {
-  const pulse = 32 + Math.sin(time + index) * 7;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
-  gradient.addColorStop(0.3, 'rgba(255, 255, 224, 0.6)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Sparkles
-  for(let i = 0; i < 10; i++) {
-    const angle = time * 3 + i * Math.PI / 5;
-    const dist = 15 + Math.random() * pulse * 0.5;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 2, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawSummoning(x, y, time, index) {
-  const pulse = 35 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(139, 0, 0, 0.9)');
-  gradient.addColorStop(0.4, 'rgba(255, 0, 0, 0.5)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Kanji symbols
-  canvasCtx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
-  canvasCtx.lineWidth = 2;
-  for(let i = 0; i < 5; i++) {
-    const angle = time + i * Math.PI * 2 / 5;
-    const dist = pulse * 0.6;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.strokeRect(px - 4, py - 4, 8, 8);
-  }
-}
-
-function drawEarthWall(x, y, time, index) {
-  const pulse = 30 + Math.sin(time + index) * 5;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(139, 69, 19, 0.9)');
-  gradient.addColorStop(0.5, 'rgba(160, 82, 45, 0.5)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Rock chunks
-  for(let i = 0; i < 8; i++) {
-    const angle = time + i * Math.PI / 4;
-    const dist = 20 + Math.random() * 15;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    const size = 3 + Math.random() * 4;
-    
-    canvasCtx.fillStyle = `rgba(139, 69, 19, ${0.6 + Math.random() * 0.3})`;
-    canvasCtx.fillRect(px - size/2, py - size/2, size, size);
-  }
-}
-
-function drawWindScythe(x, y, time, index) {
-  const pulse = 33 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(240, 255, 255, 0.8)');
-  gradient.addColorStop(0.4, 'rgba(135, 206, 235, 0.5)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Wind blades
-  canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-  canvasCtx.lineWidth = 3;
-  for(let i = 0; i < 4; i++) {
-    const angle = time * 2 + i * Math.PI / 2;
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(x, y);
-    canvasCtx.lineTo(x + Math.cos(angle) * pulse, y + Math.sin(angle) * pulse);
-    canvasCtx.stroke();
-  }
-}
-
-function drawLightningBlade(x, y, time, index) {
-  const pulse = 32 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 0, 1)');
-  gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.7)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Electric arcs
-  canvasCtx.strokeStyle = `rgba(255, 255, 0, ${0.7 + Math.random() * 0.3})`;
-  canvasCtx.lineWidth = 2;
-  for(let i = 0; i < 6; i++) {
-    const angle = time * 3 + i * Math.PI / 3;
-    const length = 25 + Math.random() * 15;
-    const endX = x + Math.cos(angle) * length;
-    const endY = y + Math.sin(angle) * length;
-    
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(x, y);
-    canvasCtx.lineTo(endX, endY);
-    canvasCtx.stroke();
-  }
-}
-
-function drawIceMirrors(x, y, time, index) {
-  const pulse = 30 + Math.sin(time + index) * 5;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(240, 248, 255, 0.9)');
-  gradient.addColorStop(0.4, 'rgba(176, 224, 230, 0.6)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Ice crystals
-  canvasCtx.strokeStyle = 'rgba(200, 230, 255, 0.8)';
-  canvasCtx.lineWidth = 2;
-  for(let i = 0; i < 6; i++) {
-    const angle = time + i * Math.PI / 3;
-    const dist = pulse * 0.6;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(px - 5, py);
-    canvasCtx.lineTo(px + 5, py);
-    canvasCtx.moveTo(px, py - 5);
-    canvasCtx.lineTo(px, py + 5);
-    canvasCtx.stroke();
-  }
-}
-
-function drawSandCoffin(x, y, time, index) {
-  const pulse = 31 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(222, 184, 135, 0.9)');
-  gradient.addColorStop(0.5, 'rgba(210, 180, 140, 0.5)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Sand particles
-  for(let i = 0; i < 15; i++) {
-    const angle = time + i * Math.PI / 7.5;
-    const dist = 10 + Math.random() * pulse * 0.7;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(210, 180, 140, ${0.5 + Math.random() * 0.4})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 1 + Math.random() * 2, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawEightGates(x, y, time, index) {
-  const pulse = 35 + Math.sin(time * 1.5 + index) * 8;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 0, 0, 1)');
-  gradient.addColorStop(0.3, 'rgba(255, 69, 0, 0.7)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Steam/energy waves
-  canvasCtx.strokeStyle = `rgba(255, 0, 0, ${0.6 + Math.random() * 0.3})`;
-  canvasCtx.lineWidth = 3;
-  for(let i = 0; i < 3; i++) {
-    const radius = pulse * (0.3 + i * 0.3);
-    canvasCtx.beginPath();
-    canvasCtx.arc(x, y, radius, 0, 2 * Math.PI);
-    canvasCtx.stroke();
-  }
-}
-
-function drawParticleStyle(x, y, time, index) {
-  const pulse = 33 + Math.sin(time + index) * 7;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.2, 'rgba(200, 200, 255, 0.8)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Disintegrating particles
-  for(let i = 0; i < 20; i++) {
-    const angle = time * 2 + i * Math.PI / 10;
-    const dist = 15 + Math.random() * pulse * 0.6;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    
-    canvasCtx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
-    canvasCtx.beginPath();
-    canvasCtx.arc(px, py, 1 + Math.random() * 2, 0, 2 * Math.PI);
-    canvasCtx.fill();
-  }
-}
-
-function drawWoodStyle(x, y, time, index) {
-  const pulse = 32 + Math.sin(time + index) * 6;
-  
-  let gradient = canvasCtx.createRadialGradient(x, y, 5, x, y, pulse);
-  gradient.addColorStop(0, 'rgba(34, 139, 34, 0.9)');
-  gradient.addColorStop(0.4, 'rgba(107, 142, 35, 0.6)');
-  gradient.addColorStop(1, 'transparent');
-  
-  canvasCtx.fillStyle = gradient;
-  canvasCtx.beginPath();
-  canvasCtx.arc(x, y, pulse, 0, 2 * Math.PI);
-  canvasCtx.fill();
-  
-  // Vine/branch lines
-  canvasCtx.strokeStyle = 'rgba(34, 139, 34, 0.8)';
-  canvasCtx.lineWidth = 3;
-  for(let i = 0; i < 5; i++) {
-    const angle = time + i * Math.PI * 2 / 5;
-    const length = pulse * 0.8;
-    canvasCtx.beginPath();
-    canvasCtx.moveTo(x, y);
-    const endX = x + Math.cos(angle) * length;
-    const endY = y + Math.sin(angle) * length;
-    canvasCtx.lineTo(endX, endY);
-    canvasCtx.stroke();
-  }
-}
-
+// ──────────────────────────────────────────────
+// Initialize MediaPipe Hands
+// ──────────────────────────────────────────────
 const hands = new Hands({
-  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`
 });
 
 hands.setOptions({
   maxNumHands: 2,
   modelComplexity: 1,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5
+  minDetectionConfidence: 0.45,
+  minTrackingConfidence: 0.45
 });
+
 hands.onResults(onResults);
 
 const camera = new Camera(videoElement, {
@@ -1042,9 +366,14 @@ const camera = new Camera(videoElement, {
   width: 1280,
   height: 720
 });
-camera.start();
 
-resetSequence();
+camera.start().then(() => {
+  statusText.innerText = "Camera ready • Make seals!";
+  resetSequence();
+}).catch(err => {
+  statusText.innerText = "Camera error: " + err.message;
+  statusText.style.color = "#ff5252";
+});
 </script>
 </body>
 </html>
